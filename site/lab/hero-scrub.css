@@ -1,0 +1,315 @@
+/* Lab prototype (b), split. --hs-split is where the line sits, as a share of the photo's width; REST in
+ * hero-scrub.tsx has the same resting values. */
+@property --hs-split {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 30%;
+}
+
+.hs {
+  display: grid;
+  gap: clamp(26px, 3vw, 40px);
+  padding-block: clamp(36px, 4.5vw, 60px) clamp(64px, 9vw, 120px);
+}
+.hs-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: clamp(32px, 5vw, 80px);
+  row-gap: 22px;
+  align-items: end;
+}
+.hs-head h1 {
+  max-width: 9.6em;
+}
+.hs-intro {
+  display: grid;
+  gap: 20px;
+}
+.hs-intro .lede {
+  font-size: clamp(16px, 1.3vw, 18px);
+}
+
+/* the stage: three copies of the photo placed by hand like object-fit: cover, so the line, the clip and the
+   finding share the photo's coordinates at every crop */
+.hs-figure {
+  display: grid;
+  gap: 14px;
+}
+.hs-stage {
+  --px: 50%;
+  --py: 42%;
+  --rest: 30%;
+  --hs-split: var(--rest);
+  position: relative;
+  aspect-ratio: 2.35 / 1;
+  overflow: hidden;
+  container-type: size;
+  border-radius: 16px;
+  border: 1px solid var(--line-2);
+  background: #0c0c0c;
+  box-shadow: 0 40px 100px -30px rgb(0 0 0 / 0.75);
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: ew-resize;
+  transition: --hs-split 700ms var(--ease-in-out);
+}
+.hs-stage[data-mode="fix"] {
+  --rest: 13%;
+}
+.hs-stage[data-dragging] {
+  transition: none;
+}
+.hs-box {
+  position: absolute;
+  left: var(--px);
+  top: var(--py);
+  width: max(100cqw, 149.69cqh);
+  aspect-ratio: 1440 / 962;
+  translate: calc(-1 * var(--px)) calc(-1 * var(--py));
+}
+.hs-box img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.hs-left {
+  clip-path: inset(0 calc(100% - var(--hs-split)) 0 0);
+}
+/* the mask PNGs are grey with no alpha, so they need mask-mode: luminance */
+.hs-fixed {
+  mask-image: url("/img/street-sign-mask.png");
+  mask-mode: luminance;
+  mask-size: 100% 100%;
+}
+.hs-fixed,
+.hs-edited {
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+.hs-stage[data-mode="fix"] :is(.hs-fixed, .hs-edited) {
+  opacity: 1;
+}
+
+/* the finding: amber while it is an error, green once fixed */
+.hs-marker {
+  font-size: clamp(13px, 1.3cqw, 17px);
+}
+.hs-stage[data-mode="fix"] .hs-marker {
+  --tone: var(--pass);
+}
+.hs-marker::before,
+.hs-marker::after,
+.hs-marker > i::before,
+.hs-marker > i::after {
+  width: 0.85em;
+  height: 0.85em;
+  border-width: 0.18em;
+  filter: drop-shadow(0 0 3px rgb(0 0 0 / 0.6));
+}
+
+/* the line and its handle */
+.hs-seam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--hs-split);
+  width: 0;
+}
+.hs-seam::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.18),
+    0 0 14px rgb(0 0 0 / 0.4);
+}
+.hs-grip {
+  position: absolute;
+  top: 62%;
+  left: 0;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: rgb(18 18 18 / 0.78);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.45);
+  touch-action: none;
+  cursor: ew-resize;
+  transition: transform 140ms var(--ease-out);
+}
+.hs-grip:focus-visible {
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 3px var(--bg),
+    0 0 0 5px var(--agent);
+}
+.hs-stage[data-dragging] .hs-grip {
+  transform: scale(1.08);
+}
+
+.hs-chip {
+  position: absolute;
+  top: 14px;
+  z-index: 1;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgb(14 14 14 / 0.74);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.hs-chip-left {
+  left: 14px;
+}
+.hs-chip-right {
+  right: 14px;
+}
+.hs-stage[data-mode="fix"] .hs-chip-right {
+  color: var(--pass);
+}
+.seg.hs-seg {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 1;
+  display: inline-flex;
+  border-radius: 999px;
+  background: rgb(14 14 14 / 0.74);
+  border-color: rgb(255 255 255 / 0.12);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  cursor: default;
+}
+.seg.hs-seg button {
+  min-height: 38px;
+  border-radius: 999px;
+  text-align: center;
+}
+
+/* the hint: once, from rest across the sign and back (it vanishes into the edit, then returns) */
+.hs-stage[data-intro] {
+  animation: hs-hint 2600ms var(--ease-in-out) 700ms both;
+}
+@keyframes hs-hint {
+  0% {
+    --hs-split: var(--rest);
+  }
+  38%,
+  58% {
+    --hs-split: 12%;
+  }
+  100% {
+    --hs-split: var(--rest);
+  }
+}
+.hs-stage[data-intro] .hs-marker {
+  animation: pop-in 420ms var(--ease-out) 3150ms both;
+}
+
+.hs-status {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: 10px;
+  row-gap: 4px;
+  font-size: 15px;
+  color: var(--text-2);
+}
+.hs-status code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  color: var(--text);
+}
+.hs-mark {
+  font-family: var(--mono);
+}
+.hs-mark[data-tone="find"],
+.hs-mark[data-tone="find"] + span code {
+  color: var(--retry);
+}
+.hs-mark[data-tone="pass"],
+.hs-mark[data-tone="pass"] + span code {
+  color: var(--pass);
+}
+.hs-hint {
+  font-size: 14px;
+  color: var(--text-3);
+}
+
+html[data-input="keyboard"] :is(.hs-stage, .hs-fixed, .hs-edited),
+html[data-input="keyboard"] .hs-marker::before,
+html[data-input="keyboard"] .hs-marker::after,
+html[data-input="keyboard"] .hs-marker > i::before,
+html[data-input="keyboard"] .hs-marker > i::after {
+  transition: none !important;
+}
+
+@media (max-width: 900px) {
+  .hs-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hs-head h1 {
+    max-width: none;
+  }
+}
+@media (max-width: 700px) {
+  .hs {
+    gap: 22px;
+    padding-top: 24px;
+  }
+  .hs-intro {
+    gap: 16px;
+  }
+  .hs-intro .lede {
+    font-size: 16px;
+  }
+  .hs-stage {
+    --px: 0%;
+    aspect-ratio: 1 / 1.08;
+    border-radius: 14px;
+  }
+  .hs-chip {
+    top: 10px;
+    font-size: 12px;
+  }
+  .hs-chip-left {
+    left: 10px;
+  }
+  .hs-chip-right {
+    right: 10px;
+  }
+  .seg.hs-seg {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .seg.hs-seg button {
+    min-height: 40px;
+    padding: 0 8px;
+    font-size: 14px;
+  }
+  .hs-status {
+    grid-template-columns: auto minmax(0, 1fr);
+    font-size: 14px;
+  }
+  .hs-hint {
+    grid-column: 2;
+  }
+}
