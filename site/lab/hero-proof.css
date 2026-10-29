@@ -1,0 +1,223 @@
+/* Lab prototype (c'), three frames of proof. Each frame's --at (hero-proof.tsx) is when its finding marks it;
+ * the restore in the third frame lands from 1800 ms. */
+.hp {
+  display: grid;
+  gap: clamp(28px, 3.2vw, 44px);
+  padding-block: clamp(36px, 4.5vw, 60px) clamp(64px, 9vw, 120px);
+}
+.hp-head {
+  display: grid;
+  gap: 14px;
+}
+.hp-eyebrow {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.hp-head h1 {
+  font-size: clamp(40px, 4.6vw, 72px);
+}
+.hp-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px 48px;
+  margin-top: 8px;
+}
+.hp-row .lede {
+  flex: 1 1 30em;
+  max-width: 38em;
+}
+.hp-row .hero-actions {
+  margin-top: 0;
+}
+
+/* the frames */
+.hp-frames {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.hp-frame {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  animation: rise-in 600ms var(--ease-out) calc(var(--i) * 110ms) both;
+}
+.hp-cell {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  container-type: inline-size;
+  border-radius: 14px;
+  border: 1px solid var(--line-2);
+  background: #0c0c0c;
+  box-shadow: 0 30px 70px -30px rgb(0 0 0 / 0.7);
+}
+.hp-photo {
+  position: absolute;
+  width: var(--zw);
+  left: var(--zx);
+  top: var(--zy);
+  aspect-ratio: 1440 / 962;
+  font-size: clamp(12px, 3.8cqi, 16px);
+}
+.hp-photo > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+/* the mask PNGs are grey with no alpha, so they need mask-mode: luminance */
+.hp-restored {
+  mask-image: url("/img/street-sign-mask.png");
+  mask-mode: luminance;
+  mask-size: 100% 100%;
+  animation: fade-in 900ms ease 1800ms both;
+}
+.hp-frame[data-tone="seen"] {
+  --tone: #ffffff;
+}
+.hp-frame[data-tone="find"] {
+  --tone: var(--retry);
+}
+.hp-frame[data-tone="pass"] {
+  --tone: var(--pass);
+}
+.hp-mark {
+  animation: pop-in 420ms var(--ease-out) var(--at) both;
+}
+.hp-mark::before,
+.hp-mark::after,
+.hp-mark > i::before,
+.hp-mark > i::after {
+  width: 0.85em;
+  height: 0.85em;
+  border-width: 0.17em;
+  filter: drop-shadow(0 0 3px rgb(0 0 0 / 0.6));
+}
+.hp-tag {
+  translate: 0 -50%;
+  font-size: 13px;
+  animation: fade-in 400ms ease var(--at) both;
+}
+.hp-chip {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 11px 4px 5px;
+  border-radius: 999px;
+  background: rgb(14 14 14 / 0.8);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font-size: 13px;
+  font-weight: 600;
+}
+.hp-n {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--text);
+  color: #121212;
+  font-size: 11.5px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.hp-frame[data-tone="find"] .hp-n {
+  background: var(--retry);
+}
+.hp-frame[data-tone="pass"] .hp-n {
+  background: var(--pass);
+}
+
+.hp-caption {
+  display: grid;
+  gap: 3px;
+}
+.hp-title {
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.hp-trace {
+  display: grid;
+  grid-template-columns: 1.1em minmax(0, 1fr);
+  column-gap: 6px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--text-2);
+  animation: row-in 360ms var(--ease-out) var(--at) both;
+}
+.hp-trace .mark {
+  font-family: var(--mono);
+  color: var(--agent);
+}
+.hp-trace code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  color: var(--text);
+}
+.hp-frame[data-tone="find"] .hp-trace :is(.mark, code) {
+  color: var(--retry);
+}
+.hp-frame[data-tone="pass"] .hp-trace :is(.mark, code) {
+  color: var(--pass);
+}
+
+/* phones: the three frames become strips, one above the other, so the sequence still reads in one look */
+@media (max-width: 700px) {
+  .hp {
+    gap: 22px;
+    padding-top: 22px;
+  }
+  .hp-head {
+    gap: 10px;
+  }
+  .hp-eyebrow {
+    font-size: 11.5px;
+  }
+  .hp-row {
+    gap: 16px;
+    margin-top: 2px;
+  }
+  .hp-row .lede {
+    flex-basis: 100%;
+    font-size: 16px;
+  }
+  .hp-frames {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .hp-frame {
+    gap: 6px;
+  }
+  .hp-cell {
+    aspect-ratio: 354 / 120;
+    border-radius: 12px;
+  }
+  .hp-photo {
+    width: var(--zw-m);
+    left: var(--zx-m);
+    top: var(--zy-m);
+    font-size: 13px;
+  }
+  .hp-chip {
+    left: 8px;
+    top: 8px;
+    font-size: 12px;
+  }
+  .hp-title {
+    display: none;
+  }
+  .hp-trace {
+    font-size: 13.5px;
+  }
+}

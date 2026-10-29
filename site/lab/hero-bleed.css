@@ -1,0 +1,252 @@
+/* Lab prototype (a), full bleed. The beats' times match T in hero-bleed.tsx: walk 250-3250 ms, finding 3650,
+ * viewfinder leaves 4200-4800, restore 5700-6800, corners and tag turn green 6550-6600, run ends 7400. */
+.hb {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  column-gap: 48px;
+  min-height: clamp(640px, calc(100svh - 60px), 1040px);
+  padding: 0 max(var(--pad), (100% - var(--content)) / 2) clamp(32px, 5.5vh, 64px);
+  overflow: hidden;
+}
+
+/* the photo: object-fit cover by hand, so the overlays can live in the photo's own coordinates */
+.hb-media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  container-type: size;
+  background: #0c0c0c;
+  --px: 50%;
+  --py: 70%;
+}
+.hb-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgb(12 12 12 / 0.94) 0%, rgb(12 12 12 / 0.76) 22%, rgb(12 12 12 / 0.3) 42%, rgb(12 12 12 / 0) 56%),
+    linear-gradient(to bottom, rgb(19 19 19 / 0.5), rgb(19 19 19 / 0) 12%);
+}
+.hb-photo {
+  position: absolute;
+  left: var(--px);
+  top: var(--py);
+  width: max(100cqw, 149.69cqh);
+  aspect-ratio: 1440 / 962;
+  translate: calc(-1 * var(--px)) calc(-1 * var(--py));
+  font-size: clamp(13px, 1.05cqw, 16px);
+}
+.hb-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+/* The mask PNGs are grey with no alpha: without mask-mode: luminance the whole layer shows. */
+.hb-restored {
+  mask-image: url("/img/street-sign-mask.png");
+  mask-mode: luminance;
+  mask-size: 100% 100%;
+}
+
+/* the run */
+.hb-scene {
+  position: absolute;
+  inset: 0;
+  --lx-from: 104%;
+  --lx: var(--lx-end);
+  animation: hb-walk 3000ms var(--ease-walk) 250ms both;
+}
+@keyframes hb-walk {
+  from {
+    --lx: var(--lx-from);
+  }
+}
+.hb-scene .lens-tag {
+  font-size: 0.86em;
+}
+/* the viewfinder walks in, holds on the sign, then leaves: finished state, gone */
+.hb-lens-out {
+  opacity: 0;
+  animation: lens-hold 4800ms linear both;
+}
+.hb-finding {
+  --tone: var(--pass);
+  animation: pop-in 420ms var(--ease-out) 3650ms both;
+}
+.hb-finding::before,
+.hb-finding::after,
+.hb-finding > i::before,
+.hb-finding > i::after {
+  width: 0.85em;
+  height: 0.85em;
+  border-width: 0.18em;
+  filter: drop-shadow(0 0 3px rgb(0 0 0 / 0.6));
+  animation: hb-amber 360ms ease 6550ms both;
+}
+@keyframes hb-amber {
+  from {
+    border-color: var(--retry);
+  }
+}
+.hb-scene .tag {
+  font-size: 0.9em;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.35);
+}
+.hb-tag-missing {
+  opacity: 0;
+  animation: hb-blip 2950ms linear 3650ms both;
+}
+@keyframes hb-blip {
+  0% {
+    opacity: 0;
+    transform: translateY(0.4em);
+  }
+  8%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.hb-clock {
+  position: absolute;
+  animation: hb-clock 7400ms linear both;
+}
+@keyframes hb-clock {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.hb[data-paused] .hb-scene,
+.hb[data-paused] .hb-scene *,
+.hb[data-paused] .hb-scene *::before,
+.hb[data-paused] .hb-scene *::after,
+.hb[data-paused] .trace-row {
+  animation-play-state: paused !important;
+}
+
+/* copy, over the quiet bottom of the frame */
+.hb-copy {
+  display: grid;
+  gap: 18px;
+  max-width: 640px;
+}
+.hb-eyebrow {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 9px;
+  border-radius: 999px;
+  background: rgb(14 14 14 / 0.62);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.hb h1 {
+  max-width: 10.5em;
+  text-shadow: 0 2px 30px rgb(0 0 0 / 0.35);
+}
+.hb .lede {
+  max-width: 34em;
+  color: #c8c8c8;
+}
+
+/* the agent's trace and the one control, bottom right */
+.hb-side {
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+}
+.hb-trace {
+  width: 400px;
+  display: grid;
+  gap: 0.1em;
+  padding: 12px 16px 13px;
+  border-radius: 14px;
+  background: rgb(14 14 14 / 0.66);
+  border: 1px solid rgb(255 255 255 / 0.09);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  backdrop-filter: blur(14px) saturate(130%);
+  font-size: 14px;
+}
+.hb-trace .trace-row p {
+  white-space: normal;
+}
+.hb-control {
+  background: rgb(18 18 18 / 0.7);
+  border-color: rgb(255 255 255 / 0.16);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 960px) {
+  .hb {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hb-side {
+    display: none;
+  }
+}
+/* phones: the photo fills the first screen, cropped to keep the sign; the trace follows below it */
+@media (max-width: 700px) {
+  .hb {
+    grid-template-rows: minmax(calc(100svh - 60px), auto) auto;
+    min-height: 0;
+    padding-bottom: 0;
+  }
+  .hb-media {
+    bottom: auto;
+    height: calc(100svh - 60px);
+    --px: 15.7%;
+    --py: 50%;
+  }
+  .hb-media::after {
+    background:
+      linear-gradient(to top, rgb(12 12 12 / 0.96) 0%, rgb(12 12 12 / 0.84) 30%, rgb(12 12 12 / 0.3) 46%, rgb(12 12 12 / 0) 56%),
+      linear-gradient(to bottom, rgb(19 19 19 / 0.5), rgb(19 19 19 / 0) 10%);
+  }
+  .hb-photo {
+    font-size: 15px;
+  }
+  .hb-scene {
+    --lx-from: 46%;
+  }
+  .hb-copy {
+    align-self: end;
+    gap: 14px;
+    padding-bottom: 24px;
+  }
+  .hb-eyebrow {
+    font-size: 11.5px;
+  }
+  .hb-side {
+    display: grid;
+    justify-items: stretch;
+    padding-block: 8px 28px;
+  }
+  .hb-trace {
+    width: auto;
+  }
+  .hb-control {
+    position: absolute;
+    top: 14px;
+    right: var(--pad);
+  }
+}
